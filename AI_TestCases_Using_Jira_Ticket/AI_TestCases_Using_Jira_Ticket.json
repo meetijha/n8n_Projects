@@ -1,0 +1,124 @@
+{
+  "name": "AI_TestCases_Using_Jira_Ticket",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -272,
+        -80
+      ],
+      "id": "598ab1fa-3efd-4e02-81b0-5194f293b6c4",
+      "name": "When chat message received",
+      "webhookId": "faae7e9e-e435-4e5a-af51-0d7a0d9d60fa"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a Senior QA Engineer with 15 years of experience.\n\nYour task is to generate detailed manual test cases ONLY based on the provided Jira ticket details.\n\nDo NOT assume any external documentation.\nUse only the Jira ticket information provided in the input.\n\nInstructions:\n\n1. Carefully analyze the Jira ticket fields:\n   - Summary\n   - Description\n   - Acceptance Criteria\n   - Comments (if available)\n   - Attachments (if mentioned in text)\n\n2. From the Jira ticket information, generate comprehensive manual test cases.\n\n3. Output format:\n   Return test cases in MARKDOWN TABLE format.\n   Each test case should be a single row.\n   Columns must be:\n\n   Test_Case_ID | Jira_ID | Module_Feature | Test_Case_Title | Preconditions | Test_Steps | Test_Data | Expected_Result | Priority | Test_Type\n\n  \n   - Do NOT return JSON.(Functional/Negative/Boundary/UI/Integration)\n\n4. Cover:\n   - Positive scenarios\n   - Negative scenarios\n   - Boundary cases (if applicable)\n   - Validation scenarios\n   - Edge cases derived from acceptance criteria\n\n5. If acceptance criteria are unclear, infer reasonable test scenarios strictly based on available Jira content.\n   Do NOT hallucinate features not mentioned.\n\n6. Output format:\n   Return structured JSON array of test cases.\n\nImportant:\n- Do not assume missing requirements.\n- Base everything strictly on Jira ticket content."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -64,
+        -64
+      ],
+      "id": "fe254b3e-fad0-4e91-b53b-60a4800a16a1",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        192
+      ],
+      "id": "880661e8-3c4b-49f0-87f2-f5e00753ab76",
+      "name": "BRAIN",
+      "credentials": {
+        "groqApi": {
+          "id": "jCVPUyGKkt5UEdAh",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "issueKey": "VP-3",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.jiraTool",
+      "typeVersion": 1,
+      "position": [
+        48,
+        192
+      ],
+      "id": "03a006c8-b9a2-41d2-8308-f8a515b3415d",
+      "name": "READ_JIRA",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "DkRmbTXoL2sRS7oa",
+          "name": "Jira SW Cloud account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BRAIN": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "READ_JIRA": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "7c44f984-2064-463a-a106-a0b7fa275a2b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a4c02a28af89a9ac54aa44a32887bc37b52d706a69a952da794bbf9459b04a06"
+  },
+  "id": "tdtnK0U0m4NVXnRc",
+  "tags": []
+}
