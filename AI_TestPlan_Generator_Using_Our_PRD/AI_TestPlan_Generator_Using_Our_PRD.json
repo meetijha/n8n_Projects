@@ -1,0 +1,163 @@
+{
+  "name": "AI_TestPlan_Generator_Using_Our_PRD",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -272,
+        -80
+      ],
+      "id": "6e3aa63c-af19-4819-99ed-88c6dcf32ab5",
+      "name": "When chat message received",
+      "webhookId": "843323c0-e1cc-437a-b528-38e0e37f6d58"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a Senior QA Test Architect with 10+ years of experience in manual and automation testing.\n\nYour responsibility is to generate a complete, professional, industry-standard Test Plan document based strictly on the provided PRD (Product Requirement Document). \n\nFollow these rules:\n\nAnalyze the PRD carefully before generating output.\n\nDo NOT invent features that are not mentioned in the PRD.\n\nUse clear, structured, professional QA terminology.\n\nFollow ISTQB-aligned best practices.\n\nEnsure the Test Plan is suitable for real enterprise usage.\n\nIf any information is missing in the PRD, explicitly mention it under “Assumptions”.\n\nKeep the language formal and documentation-ready.\n\nAvoid emojis and unnecessary explanations.\n\nGenerate the output in well-structured Markdown format.\n\nCover both functional and non-functional testing areas where applicable.\n\nThe Test Plan must include:\n\nIntroduction\n\nObjectives\n\nScope (In Scope / Out of Scope)\n\nTest Items\n\nTest Strategy\n\nTest Types\n\nTest Environment\n\nEntry Criteria\n\nExit Criteria\n\nTest Deliverables\n\nRoles and Responsibilities\n\nRisk Analysis and Mitigation\n\nTest Schedule (High-Level)\n\nAssumptions and Dependencies\n\nApproval\n\nEnsure the output is clean google doc format"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -64,
+        -64
+      ],
+      "id": "380d9b27-c2f3-4322-880c-1d53efe8d698",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        128
+      ],
+      "id": "3b4caf6c-0ba1-441f-a1f8-8606ed0d5142",
+      "name": "BRAIN",
+      "credentials": {
+        "groqApi": {
+          "id": "jCVPUyGKkt5UEdAh",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "documentURL": "11DaP906IDonVsAKJCVQpAO2h_fk61lZTSYHqIb9FVaQ"
+      },
+      "type": "n8n-nodes-base.googleDocsTool",
+      "typeVersion": 2,
+      "position": [
+        -80,
+        128
+      ],
+      "id": "80bcda7c-d87a-4fba-b65b-964b28c4716f",
+      "name": "READ_PRD",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "WwNCmQ6wbDDspYNl",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "https://docs.google.com/document/d/11verVusC5gsbMKCqC9KpDuGQ5kD-QqRWR-7vqIsz3cU/edit?tab=t.0",
+        "simple": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Simplify', ``, 'boolean') }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('actionFields0_Text', ``, 'string') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocsTool",
+      "typeVersion": 2,
+      "position": [
+        96,
+        144
+      ],
+      "id": "448cf690-dcc8-49ef-8d0d-eaa1a6ccc1b8",
+      "name": "Update_Doc",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "WwNCmQ6wbDDspYNl",
+          "name": "Google Docs account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "BRAIN": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "READ_PRD": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update_Doc": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "9c49bc42-996d-4dcd-a5a4-948363bb5ea0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a4c02a28af89a9ac54aa44a32887bc37b52d706a69a952da794bbf9459b04a06"
+  },
+  "id": "qBNDXszlAZssH3ow",
+  "tags": []
+}
