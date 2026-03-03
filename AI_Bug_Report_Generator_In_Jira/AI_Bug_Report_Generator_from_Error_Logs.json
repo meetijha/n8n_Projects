@@ -1,0 +1,144 @@
+{
+  "name": "AI_Bug_Report_Generator_from_Error_Logs",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -368,
+        -48
+      ],
+      "id": "3189d491-2a85-4b7b-af25-a91c54507551",
+      "name": "When chat message received",
+      "webhookId": "189433fa-7b6a-4bc9-8f94-3bffb2537e63"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a Senior QA Engineer responsible for converting raw application error logs into structured, professional bug reports.\n\nYour task is to analyze the provided error log text and generate a formal bug report strictly based on the given data.\n\n🚫 Anti-Hallucination Rules (STRICT)\n\nUse ONLY the log data provided in the user message.\n\nDo NOT assume, infer, or invent missing details.\n\nIf any required information is not available in the log, write: [UNKNOWN]\n\nDo NOT add environment details, steps, or severity unless explicitly derivable from the log.\n\nDo NOT include explanations outside the required format.\n\n📌 Bug Report Format (Follow Exactly)\n\nGenerate the output strictly in the following structure:\n\nTitle: <Clear and concise issue summary>\n\nSeverity: <Critical / High / Medium / Low / [UNKNOWN]>\n(Determine severity only if clearly inferable from the log. Otherwise write [UNKNOWN])\n\nEnvironment:\n- Application: <if mentioned, else [UNKNOWN]>\n- Version: <if mentioned, else [UNKNOWN]>\n- OS/Platform: <if mentioned, else [UNKNOWN]>\n\nError Details:\n- Error Message: <exact message from log>\n- Error Code: <if available, else [UNKNOWN]>\n- Timestamp: <if available, else [UNKNOWN]>\n- Module/Service: <if available, else [UNKNOWN]>\n\nSteps to Reproduce:\n1. <Only if clearly implied from log, otherwise write [UNKNOWN]>\n\nExpected Result:\n<Based strictly on intended behavior implied by error. If not clear, write [UNKNOWN]>\n\nActual Result:\n<Describe what failed according to the log>\n\nAdditional Notes:\n<Stack trace summary or relevant technical details from log>\n🎯 Severity Guidelines (Use Only If Clearly Supported by Log)\n\nCritical – System crash, data loss, security failure\n\nHigh – Major feature broken, no workaround\n\nMedium – Partial failure or degraded functionality\n\nLow – Minor issue, cosmetic, warning-level errors\n\nIf severity cannot be confidently determined → write [UNKNOWN]\n\n✅ Output Rules\n\nOutput ONLY the formatted bug report.\n\nDo NOT include commentary.\n\nDo NOT wrap in markdown unless specifically required by the workflow.\n\nKeep it professional and concise."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -144,
+        -48
+      ],
+      "id": "24701118-7300-4f6e-aea1-48aaf5f0e304",
+      "name": "AI Agent",
+      "executeOnce": true
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-safeguard-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        160
+      ],
+      "id": "6b67f2c3-3a77-4215-8c78-668d85a4de1f",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "jCVPUyGKkt5UEdAh",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "project": {
+          "__rl": true,
+          "value": "10066",
+          "mode": "list",
+          "cachedResultName": "VWO Project"
+        },
+        "issueType": {
+          "__rl": true,
+          "value": "10105",
+          "mode": "list",
+          "cachedResultName": "Bug"
+        },
+        "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}",
+        "additionalFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "reporter": {
+            "__rl": true,
+            "value": "712020:2c1b24e5-9343-444d-a486-41763fb41f80",
+            "mode": "list",
+            "cachedResultName": "Meeti Jha"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.jiraTool",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        176
+      ],
+      "id": "7bfed014-8305-4855-9d9b-e14f301aa3eb",
+      "name": "Create_Bug",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "DkRmbTXoL2sRS7oa",
+          "name": "Jira SW Cloud account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create_Bug": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "b09479af-b983-463c-a572-f81cef053eb9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a4c02a28af89a9ac54aa44a32887bc37b52d706a69a952da794bbf9459b04a06"
+  },
+  "id": "IILqpqZ0dSqVaCKS",
+  "tags": []
+}
