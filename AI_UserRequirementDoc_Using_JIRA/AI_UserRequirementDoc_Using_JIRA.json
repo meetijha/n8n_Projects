@@ -1,0 +1,194 @@
+{
+  "name": "AI_UserRequirementDoc_Using_JIRA",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -496,
+        -80
+      ],
+      "id": "d0ae76b9-23cb-4990-b0ff-03a27110a180",
+      "name": "When chat message received",
+      "webhookId": "75f0f413-5daa-4c19-9c71-31e43e2a1bfa"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "issueKey": "VP-5",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.jiraTool",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        144
+      ],
+      "id": "177100e9-fdcf-4cdf-9903-417f879f6bcb",
+      "name": "GET_JIRA",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "DkRmbTXoL2sRS7oa",
+          "name": "Jira SW Cloud account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        144
+      ],
+      "id": "dafc26ca-880a-4924-8d92-697ad55f03b8",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "jCVPUyGKkt5UEdAh",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a Senior Business Analyst and Product Documentation Specialist.\n\nYour task is to read the provided Jira PRD content carefully and generate a complete, structured, and professional User Requirement Document (URD).\n\nSTRICT RULES:\n1. Do NOT invent features or assumptions not present in the PRD.\n2. If information is missing, explicitly mention \"Not specified in PRD\".\n3. Maintain formal business documentation language.\n4. Output must be clean, structured, and ready to paste into a Google Doc.\n5. Do NOT include explanations, reasoning, or AI commentary.\n6. Do NOT output JSON unless explicitly asked.\n7. Only output the final User Requirement Document.\n\nDOCUMENT STRUCTURE:\n\n# User Requirement Document (URD)\n\n## 1. Document Overview\n- Project Name:\n- Jira Reference:\n- Version:\n- Prepared By:\n- Date:\n\n## 2. Purpose\n(Describe the purpose of the feature/system based strictly on PRD)\n\n## 3. Scope\n### 3.1 In Scope\n(List features included in PRD)\n\n### 3.2 Out of Scope\n(List explicitly excluded items or write \"Not specified in PRD\")\n\n## 4. Stakeholders\n(List stakeholders mentioned or write \"Not specified in PRD\")\n\n## 5. User Personas\n(Extract or write \"Not specified in PRD\")\n\n## 6. Functional Requirements\n(Write clear numbered requirements like:)\nFR-01:\nFR-02:\nFR-03:\n\nEach requirement must be:\n- Clear\n- Atomic\n- Testable\n- Derived directly from PRD\n\n## 7. Non-Functional Requirements\n(Performance, Security, Usability, Scalability, etc.)\n\n## 8. Business Rules\n(List rules mentioned in PRD)\n\n## 9. Assumptions\n(Only if clearly implied; otherwise write \"None\")\n\n## 10. Dependencies\n(External systems, APIs, teams)\n\n## 11. Risks\n(If mentioned in PRD, otherwise write \"Not specified in PRD\")\n\n## 12. Acceptance Criteria\n(Convert PRD acceptance criteria into clear bullet or numbered format)\n\nFormatting Requirements:\n- Use proper headings\n- Use bullet points where needed\n- Use numbered functional requirements (FR-01, FR-02…)\n- Keep language concise and professional\n- Do not include markdown code blocks"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -240,
+        -80
+      ],
+      "id": "ae653b0e-5249-4d28-85ac-362198417dc8",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{$json[\"id\"]}}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{$node[\"AI Agent\"].json[\"output\"]}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        304,
+        -80
+      ],
+      "id": "e1f8bbd0-bff2-46e2-88ab-91e05970f54e",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "WwNCmQ6wbDDspYNl",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "1aQxJoc7ND5RL94WICODeRLLuq-2iFc9s",
+        "title": "USR_VWO"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        96,
+        -80
+      ],
+      "id": "6955bf5d-d285-4b4f-8284-4ab3033e6204",
+      "name": "Create a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "WwNCmQ6wbDDspYNl",
+          "name": "Google Docs account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET_JIRA": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Create a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "4859f45b-a7cb-4546-99f8-c24d6e76ff08",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a4c02a28af89a9ac54aa44a32887bc37b52d706a69a952da794bbf9459b04a06"
+  },
+  "id": "5jPndVJYzp8cUyCh",
+  "tags": []
+}

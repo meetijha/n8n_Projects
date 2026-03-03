@@ -1,0 +1,194 @@
+{
+  "name": "AI_Create_TestPlan_Using_JIRA",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -496,
+        -80
+      ],
+      "id": "c7bcf78d-e90a-4907-b80e-644305b1e78d",
+      "name": "When chat message received",
+      "webhookId": "ebbc5692-c424-4180-85bc-7db523b8d065"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "issueKey": "VP-5",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.jiraTool",
+      "typeVersion": 1,
+      "position": [
+        -192,
+        144
+      ],
+      "id": "1a17bf38-46e7-472d-b760-eb288da2b2c7",
+      "name": "GET_JIRA",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "DkRmbTXoL2sRS7oa",
+          "name": "Jira SW Cloud account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -384,
+        144
+      ],
+      "id": "1a03c73b-c325-41f3-93c7-14e03e210419",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "jCVPUyGKkt5UEdAh",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "You are a Senior QA Test Architect with 10+ years of experience in manual and automation testing.\n\nYour responsibility is to generate a complete, professional, industry-standard Test Plan document based strictly on the provided PRD (Product Requirement Document). \n\nFollow these rules:\n\nAnalyze the PRD carefully before generating output.\n\nDo NOT invent features that are not mentioned in the PRD.\n\nUse clear, structured, professional QA terminology.\n\nFollow ISTQB-aligned best practices.\n\nEnsure the Test Plan is suitable for real enterprise usage.\n\nIf any information is missing in the PRD, explicitly mention it under “Assumptions”.\n\nKeep the language formal and documentation-ready.\n\nAvoid emojis and unnecessary explanations.\n\nGenerate the output in well-structured Markdown format.\n\nCover both functional and non-functional testing areas where applicable.\n\nThe Test Plan must include:\n\nIntroduction\n\nObjectives\n\nScope (In Scope / Out of Scope)\n\nTest Items\n\nTest Strategy\n\nTest Types\n\nTest Environment\n\nEntry Criteria\n\nExit Criteria\n\nTest Deliverables\n\nRoles and Responsibilities\n\nRisk Analysis and Mitigation\n\nTest Schedule (High-Level)\n\nAssumptions and Dependencies\n\nApproval\n\nEnsure the output is  a clean Test Plan in google doc format"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -240,
+        -80
+      ],
+      "id": "43175ede-ad74-4505-b9a5-de2c878d227f",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{$json[\"id\"]}}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{$node[\"AI Agent\"].json[\"output\"]}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        304,
+        -80
+      ],
+      "id": "62472c81-e834-4de0-9241-c9aa5e35e487",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "WwNCmQ6wbDDspYNl",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "1aQxJoc7ND5RL94WICODeRLLuq-2iFc9s",
+        "title": "Test_Plan_VWO"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        96,
+        -80
+      ],
+      "id": "2c4fa6db-0158-4e6d-a4b8-80412de4abfe",
+      "name": "Create a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "WwNCmQ6wbDDspYNl",
+          "name": "Google Docs account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET_JIRA": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Create a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "e7829aa9-5902-4ebb-bc1e-11a76c0f455a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a4c02a28af89a9ac54aa44a32887bc37b52d706a69a952da794bbf9459b04a06"
+  },
+  "id": "eLEbtxffygjAtgXN",
+  "tags": []
+}
